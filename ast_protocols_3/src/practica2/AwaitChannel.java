@@ -58,4 +58,4 @@ public class AwaitChannel implements Channel {
 }
 
 //FIXME: PREGUNTAR PROFESOR. No puedo seguir encallado aquí
-//Quacircular funciona bien. He hecho estructura await. ¿Qué pasa?
+//CircularQueue funciona bien. He hecho estructura await. ¿Qué pasa?

@@ -26,6 +26,5 @@ public class QueueChannel implements Channel {
     @Override
     public int getMSS() {
         throw new UnsupportedOperationException("Not supported yet.");
-        //TODO:DE MOMENT RES.
     }
 }
