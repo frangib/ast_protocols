@@ -1,6 +1,8 @@
 package practica3;
 
 import ast.protocols.tcp.TCPSegment;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import practica1.Channel;
 import practica1.CircularQueue;
 
@@ -27,17 +29,20 @@ public class TSocketRecv extends TSocketBase {
         lk.lock(); 
         try {
             // wait until receive queue is not empty
-            appCV = null;
             // fill buf with bytes from segments in rcvQueue
             // Hint: use consumeSegment!
             //...
             while(rcvQueue.empty()){
                 appCV.await();
             }
+            //check de aqui:hay que hacer un bucle para los segmentos que sean
             TCPSegment s;
             consumeSegment(buf,offset,length);
+            //hasta aqui
             appCV.signal();
 
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TSocketRecv.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             lk.unlock();
         }

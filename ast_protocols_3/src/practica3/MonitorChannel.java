@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import practica1.Channel;
+import practica1.CircularQueue;
 
 public class MonitorChannel implements Channel {
 
@@ -15,35 +16,42 @@ public class MonitorChannel implements Channel {
     private ReentrantLock lk;
     private Condition c;
     private double lossRatio;
-    //TODO: El canal necesita una CircularQueue, ¿no? Sin embargo, nadie me
-    //da una dimensión para la CircularQueue
+    private CircularQueue<TCPSegment> q;
 
     public MonitorChannel() {
         //. . .  
         lk = new ReentrantLock();
         c = lk.newCondition();
+        this.lossRatio = 0;
+        q = new CircularQueue<>(500);
     }
 
     public MonitorChannel(double lossRatio) {
         //. . .
-        lk = new ReentrantLock();
-        c = lk.newCondition();
+        this();
+        this.lossRatio = lossRatio;
+    }
+    //Este constructor me lo he inventado yo (me lo ha dicho el profesor).
+    //
+    public MonitorChannel(int N, double lossRatio) {
+        //. . .
+        this();//Ejecuta el constructor sin parámetros.
         this.lossRatio = lossRatio;
     }
 
     public void send(TCPSegment seg) {
         //. . .
         lk.lock();
-        try{
-            while(){
+        try {
+            while () {
                 try {
                     c.await();
                 } catch (InterruptedException ex) {
                     Logger.getLogger(MonitorChannel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }finally{
-            
+        } finally {
+
         }
     }
 
@@ -56,5 +64,9 @@ public class MonitorChannel implements Channel {
         return MAX_MSG_SIZE;
     }
 
+    @Override
+    public int getMSS() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }

@@ -1,6 +1,11 @@
 
 package practica3;
 
+import ast.logging.Log;
+import ast.logging.LogFactory;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import practica1.Channel;
 
 
