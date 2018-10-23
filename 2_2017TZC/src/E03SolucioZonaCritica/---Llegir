@@ -1,0 +1,127 @@
+Aquest paquet conté un seguit d'exemples per solucionar, incrementalment, 
+el problema de la zona crítica. Una zona crítica (ZC) és una part de codi on mai
+pot haver-hi més d'un procés executant (és el problema que hem vist a FilInc
+de l'exemple anterior).
+
+En aquests exemples, la variable compartida és un objecte Comptador, que 
+encapsula una variable de tipus enter i proporciona mètodes per modificar-la. 
+S'ha decidit que tot el codi dels mètodes determinen la ZC, i per tant s'hi ha 
+d'afegir un protocol d'entrada i un de sortida de la ZC a cadascun d'ells, 
+per exemple
+    
+    public void inc() {
+        m.entrar_zc();<--- protocol d'entrada
+        valor = valor + 1;
+        m.sortir_zc();<--- protocol de sortida
+
+    }
+
+Important veure com s'ha fet a:
+
+    public int getValor() {
+        int tmp;
+        m.entrar_zc();
+        tmp = valor;
+        m.sortir_zc();
+        return tmp;
+    }
+
+El valor a retornar s'obté dins de la ZC i es guarda en una variable local al 
+mètode, i així un cop fora de la ZC el mètode retorna la variable local (que no 
+pot ser modificada per ningú).
+
+--------------------------
+
+Solució 1 [MutexOcupat.java]: Controlar si la ZC està ocupada.
+
+    private volatile boolean ocupat = false;
+
+    @Override
+    public void entrar_zc() {
+        //ocupat = true <--- aquí no hi pot anar ja que autobloqueja
+        while (ocupat);
+        //*<----- punt crític!!
+        ocupat = true;
+    }
+
+Executant Test_Inc amb un MutexOcupat es veu que no funciona. El problema està
+a //*. Què pot passar si un dels fils deixa d'executar en aquest punt?
+
+-----------------------------
+
+Solució 2 [MutexDosFlags.java]: La idea és associar un flag a cada procés, 
+així, abans d'entrar al bucle d'espera activa, cada procés pot posar el seu 
+flag a cert (avisa que vol entrar) i després esperar que el flag de l'altre 
+procés sigui fals per poder entrar.
+
+Apareixen dos problemes nous:
+1.- Com obtenir els identificadors dels Fils:
+    La instrucció
+        ((FilInc) (Thread.currentThread())).getFilId();
+    crida el mètode getFilId() del fil que l'està executant (el mètode getFilId()
+    l'hem definit nosaltres), i per tant permet saber l'id del fil actualment en 
+    execució (quan es creen els fils, s'assigna un id, passat en el constructor).
+
+2.- Com fer un array volàtil:
+
+    private volatile boolean[] flag; <--- això fa volatil la referència, però
+                                          no les components.
+
+    private void setFlag(int id, boolean f) {
+        flag[id] = f;
+        flag = flag;<---- reassignant flag fa que s'obtingui el valor a memòria 
+                          de les components
+    }
+
+Executant aquesta solució, la majoria de vegades queda bloquejat, i la raó està
+en el punt //*, els dos fils posen el seu flag a cert i esperen (infinitament)
+que l'altre el tingui a fals.
+
+    @Override
+    public void entrar_zc() {
+        int idmeu = ((MyFil) (Thread.currentThread())).getFilId();
+        setFlag(idmeu, true);
+        //*<---- punt crític
+        while (flag[1 - idmeu]);
+    }
+
+Els cops que no queda bloquejat, apareix una excepció. És degut a que el programa
+principal executa
+
+     System.out.println("El valor de num és: " + c.getValor());
+
+i al fer c.getValor(), i voler entrar a la zona crítica, no es pot obtenir el
+seu id, ja que no és un Thread. La versió Test_Inc_Fil.java ho soluciona.
+Ara a l'executar, la majoria de cops queda bloquejat, per tant és una solució 
+dolenta, però cal observar que quan acaba sempre dóna un resultat correcte, per
+tant l'exclusió mútua està ben controlada.
+
+----------------------------------
+
+Solució 3 [MutexDFSenseBloqueig.java]: Partint de la solució anterior, que
+controla bé l'EM, l'únic que s'ha de fer és trencar el bloqueig. I la manera
+de fer-ho és que mentre els fils esperen van desactivant i activant el seu flag.
+
+    @Override
+    public void entrar_zc() {
+        int idmeu = ((MyFil) (Thread.currentThread())).getFilId();
+        setFlag(idmeu, true);
+        while (flag[1 - idmeu]) {
+            setFlag(idmeu, false);
+            //* <----- punt favoravle
+            setFlag(idmeu, true);
+        }
+    }
+Si un dels dos processos deixa d'executar a //*, l'altre podrà entrar a la ZC,
+només és qüestió de "probabilitats" que passi.
+
+----------------------------------
+
+Solució 4 [MutexPeterson]: És una implementació de l'algorisme de Peterson, 
+comentat a classe.
+
+----------------------------------
+
+Solució 5 [MutexTestAndSet]: Implementació utilitzant AtomicBoolean, vista a 
+classe
+
