@@ -73,7 +73,7 @@ public class CircularQueue<E> implements Queue<E> {
     }
 
     @Override
-    public E peekLast() {//FIXME: VEURE REARQ
+    public E peekLast() {
         //throw new UnsupportedOperationException("A completar.");
         E toPeek = null;
         if (!this.empty()) {
@@ -112,9 +112,7 @@ public class CircularQueue<E> implements Queue<E> {
         /*The rear of the queue needs to be moved towards the end of the
          queue. If it is already at the end, it has to be placed at the 
          beginning*/
-        /*FIXME:When rear should be at the end of the queue it goes to
-         position 0. IT HAS BEEN CORRECTED BUT I THINK THERE'S A SIMPLER 
-         WAY*/
+        
         if (this.full()) {
             throw new IllegalStateException("Cua plena");
         }

@@ -1,17 +1,15 @@
-
 package practica3;
 
 import ast.protocols.tcp.TCPSegment;
 import practica1.Channel;
 import practica1.CircularQueue;
 
-
 public class TSocketRecv extends TSocketBase {
 
     protected Thread thread;
     protected CircularQueue<TCPSegment> rcvQueue;
     protected int rcvSegConsumedBytes;
-        // invariant: rcvQueue.empty() || rcvQueue.peekFirst().getDataLength() > rcvSegConsumedBytes
+    // invariant: rcvQueue.empty() || rcvQueue.peekFirst().getDataLength() > rcvSegConsumedBytes
 
     public TSocketRecv(Channel ch) {
         super(ch);
@@ -19,24 +17,24 @@ public class TSocketRecv extends TSocketBase {
         rcvSegConsumedBytes = 0;
         thread = new Thread(new ReceiverTask());
         thread.start();
-        
+
     }
 
     /**
-     * Places received data in buf
-     * Veure descripciÃ³ detallada en Exercici 3!!
+     * Places received data in buf Veure descripciÃ³ detallada en Exercici 3!!
      */
     public int receiveData(byte[] buf, int offset, int length) {
-        lk.lock(); //TODO: Preguntar si no se han olvidado de declarar lk.
+        lk.lock(); //TODO: Si la clase de la que hereda tiene lk, no debería dar error.
         try {
             // wait until receive queue is not empty
-
-              . . .
-
+            appCV = null;
             // fill buf with bytes from segments in rcvQueue
             // Hint: use consumeSegment!
-
-              . . .
+            //...
+            while(rcvQueue.empty()){
+                lk.await();
+            }
+            
 
         } finally {
             lk.unlock();
@@ -64,21 +62,21 @@ public class TSocketRecv extends TSocketBase {
 
     /**
      * TCPSegment arrival.
+     *
      * @param rseg segment of received packet
      */
     protected void processReceivedSegment(TCPSegment rseg) {
         lk.lock();
         try {
-
-           . . .
+            . . .
 
         } finally {
             lk.unlock();
         }
     }
 
-
     class ReceiverTask implements Runnable {
+
         public void run() {
             while (true) {
                 TCPSegment rseg = channel.receive();
@@ -87,4 +85,3 @@ public class TSocketRecv extends TSocketBase {
         }
     }
 }
-

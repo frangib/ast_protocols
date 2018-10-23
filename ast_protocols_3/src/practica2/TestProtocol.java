@@ -24,3 +24,4 @@ public class TestProtocol {
         System.out.println("Final simulació...");
     }
 }
+//FIXME: No funciona
