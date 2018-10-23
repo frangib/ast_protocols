@@ -19,6 +19,7 @@ public class TSocketRecv extends TSocketBase {
         rcvSegConsumedBytes = 0;
         thread = new Thread(new ReceiverTask());
         thread.start();
+        
     }
 
     /**
