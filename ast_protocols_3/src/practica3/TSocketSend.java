@@ -19,7 +19,7 @@ public class TSocketSend extends TSocketBase {
         // dividir la seqÃ¼Ã¨ncia de bytes de data
         // en segments de mida mÃ xima sndMSS
         // i enviar-los pel canal
-        TCPSegment s = null;
+        TCPSegment s;
 
         if (length <= sndMSS) {
             this.segmentize(data, offset, length);

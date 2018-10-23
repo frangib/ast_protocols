@@ -73,6 +73,10 @@ public class CircularQueue<E> implements Queue<E> {
             toPeek = cua[front];
         }
         return toPeek;
+        
+//        if(empty()) return null;
+//        else return cua[front];
+        //Es m´ás eficiente
     }
 
     @Override
@@ -80,7 +84,7 @@ public class CircularQueue<E> implements Queue<E> {
         //throw new UnsupportedOperationException("A completar.");
         E toPeek = null;
         if (!this.empty()) {
-            toPeek = cua[rear + 1];
+            toPeek = cua[(rear - 1 + N ) % N];
 
             //You have to peek the position rear-1 because rear is the next
             //position where an object should be put.
