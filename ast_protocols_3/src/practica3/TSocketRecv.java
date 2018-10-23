@@ -24,7 +24,7 @@ public class TSocketRecv extends TSocketBase {
      * Places received data in buf Veure descripciÃ³ detallada en Exercici 3!!
      */
     public int receiveData(byte[] buf, int offset, int length) {
-        lk.lock(); //TODO: Si la clase de la que hereda tiene lk, no debería dar error.
+        lk.lock(); 
         try {
             // wait until receive queue is not empty
             appCV = null;
@@ -32,9 +32,11 @@ public class TSocketRecv extends TSocketBase {
             // Hint: use consumeSegment!
             //...
             while(rcvQueue.empty()){
-                lk.await();
+                appCV.await();
             }
-            
+            TCPSegment s;
+            consumeSegment(buf,offset,length);
+            appCV.signal();
 
         } finally {
             lk.unlock();
@@ -68,8 +70,13 @@ public class TSocketRecv extends TSocketBase {
     protected void processReceivedSegment(TCPSegment rseg) {
         lk.lock();
         try {
-            . . .
-
+            while(rcvQueue.full()){
+                appCV.await();
+            }
+            TCPSegment seg = new TCPSegment();
+            seg = rseg;
+            rcvQueue.put(seg);
+            appCV.signal();
         } finally {
             lk.unlock();
         }
@@ -85,3 +92,4 @@ public class TSocketRecv extends TSocketBase {
         }
     }
 }
+//TODO: ¿Por qué no funcionan ni lk ni appCV?
