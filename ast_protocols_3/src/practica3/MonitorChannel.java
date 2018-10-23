@@ -16,14 +16,16 @@ public class MonitorChannel implements Channel {
     private ReentrantLock lk;
     private Condition c;
     private double lossRatio;
-    private CircularQueue<TCPSegment> q;
+    private CircularQueue<TCPSegment> cua;
+    private TCPSegment s;
 
     public MonitorChannel() {
         //. . .  
         lk = new ReentrantLock();
         c = lk.newCondition();
         this.lossRatio = 0;
-        q = new CircularQueue<>(500);
+        cua = new CircularQueue<>(500);
+        s = new TCPSegment();
     }
 
     public MonitorChannel(double lossRatio) {
@@ -43,7 +45,7 @@ public class MonitorChannel implements Channel {
         //. . .
         lk.lock();
         try {
-            while () {
+            while (cua.full()) {
                 try {
                     c.await();
                 } catch (InterruptedException ex) {
@@ -51,13 +53,26 @@ public class MonitorChannel implements Channel {
                 }
             }
         } finally {
-
+            s = seg;
+            cua.put(s);
+            c.signalAll();
         }
     }
 
     public TCPSegment receive() {
         //. . .
-        return null;
+        lk.lock();
+        while(cua.empty()){
+            try {
+                c.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MonitorChannel.class.getName()).log(Level.SEVERE, null, ex);
+            }finally{
+                s = cua.get();
+                c.signalAll();
+            }
+        }
+        return s;
     }
 
     public int getMMS() {

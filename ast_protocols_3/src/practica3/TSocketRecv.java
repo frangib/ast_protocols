@@ -35,9 +35,11 @@ public class TSocketRecv extends TSocketBase {
             while(rcvQueue.empty()){
                 appCV.await();
             }
-            //check de aqui:hay que hacer un bucle para los segmentos que sean
-            TCPSegment s;
-            consumeSegment(buf,offset,length);
+            //Hay que hacer un bucle para los segmentos que sean. De aquí
+            //while(){
+                TCPSegment s;
+                consumeSegment(buf,offset,length);
+            //}
             //hasta aqui
             appCV.signal();
 
@@ -46,6 +48,7 @@ public class TSocketRecv extends TSocketBase {
         } finally {
             lk.unlock();
         }
+        return 0;//TODO: return
     }
 
     protected int consumeSegment(byte[] buf, int offset, int length) {
@@ -76,7 +79,11 @@ public class TSocketRecv extends TSocketBase {
         lk.lock();
         try {
             while(rcvQueue.full()){
-                appCV.await();
+                try {
+                    appCV.await();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TSocketRecv.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             TCPSegment seg = new TCPSegment();
             seg = rseg;
