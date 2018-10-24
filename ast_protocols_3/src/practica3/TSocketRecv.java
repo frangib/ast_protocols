@@ -105,4 +105,3 @@ public class TSocketRecv extends TSocketBase {
         }
     }
 }
-//TODO: ¿Por qué no funcionan ni lk ni appCV?
