@@ -11,7 +11,7 @@ public class TSocketSend extends TSocketBase {
         super(ch);
         sndMSS = 10; // IP maximum message size - TCP header size
         // Provar primer amb un valor petit
-    }
+    } 
 
     public void sendData(byte[] data, int offset, int length) {
 
