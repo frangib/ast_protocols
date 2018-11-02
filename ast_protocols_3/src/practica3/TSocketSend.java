@@ -9,42 +9,41 @@ public class TSocketSend extends TSocketBase {
 
     public TSocketSend(Channel ch) {
         super(ch);
-        sndMSS = 10; // IP maximum message size - TCP header size
-        // Provar primer amb un valor petit
+        sndMSS = 10;/*IP maximum message size - TCP header size TODO: Provar 
+                    primer amb un valor petit*/
     }
 
     public void sendData(byte[] data, int offset, int length) {
 
-        // Amb l'ajuda del mÃ¨tode segmentize,
-        // dividir la seqÃ¼Ã¨ncia de bytes de data
-        // en segments de mida mÃ xima sndMSS
+        // Amb l'ajuda del metode segmentize,
+        // dividir la sequencia de bytes de data
+        // en segments de mida maxima sndMSS
         // i enviar-los pel canal
         //TODO: COMPROBAR si está bien
         TCPSegment s;
 
+        //Habra dos casos: si length es menor o igual que sndMSS o si es mayor
         if (length <= sndMSS) {
             this.segmentize(data, offset, length);
         } else {
-            for (int i = 0; i < Math.ceil((double) length / sndMSS); i++) {
-                //Habrá dos casos: si length es menor o igual que sndMSS o si es mayor
+            for (int i = 0; i < Math.ceil((double) length / sndMSS); i++) {  
                 s = this.segmentize(data, offset + i * length, length);
                 super.channel.send(s);
             }
         }
-
     }
 
     protected TCPSegment segmentize(byte[] data, int offset, int length) {
 
         // Crea un segment que en el seu payload (camp) de dades
-        // contÃ© length bytes que hi ha a data a partir
-        // de la posiciÃ³ offset.
+        // conte length bytes que hi ha a data a partir
+        // de la posicio offset.
+        //TODO: COMPROBAR si está bien
         TCPSegment seg = null;
         byte[] aux = null;
 
         System.arraycopy(data, offset, aux, 0, length);
         seg.setData(aux);
-        //}
         return seg;
     }
 

@@ -12,14 +12,14 @@ public class TSocketRecv extends TSocketBase {
     protected CircularQueue<TCPSegment> rcvQueue;
     protected int rcvSegConsumedBytes;
     // invariant: rcvQueue.empty() || rcvQueue.peekFirst().getDataLength() > rcvSegConsumedBytes
-
+    protected int consumed;//Compta el nombre de bits consumits a receiveData
     public TSocketRecv(Channel ch) {
         super(ch);
         rcvQueue = new CircularQueue<TCPSegment>(20);
         rcvSegConsumedBytes = 0;
         thread = new Thread(new ReceiverTask());
         thread.start();
-
+        consumed = 0;
     }
 
     /**
@@ -36,11 +36,11 @@ public class TSocketRecv extends TSocketBase {
             while(rcvQueue.empty()){
                 appCV.await();
             }
-            //Hay que hacer un bucle para los segmentos que sean. De aquí
-            //while(){
+            //TODO:Hay que hacer un bucle para los segmentos que sean (HECHO). De aquí
+            while(!rcvQueue.empty()){
                 TCPSegment s;
-                consumeSegment(buf,offset,length);
-            //}
+                consumed += consumeSegment(buf,offset,length);
+            }
             //hasta aqui
             appCV.signal();
 
@@ -49,7 +49,7 @@ public class TSocketRecv extends TSocketBase {
         } finally {
             lk.unlock();
         }
-        return 0;//TODO: return
+        return consumed;
     }
 
     protected int consumeSegment(byte[] buf, int offset, int length) {
