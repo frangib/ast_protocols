@@ -1,6 +1,8 @@
 package practica4;
 // declareu imports
-...
+
+import java.util.ArrayList;
+import practica1.Channel;
 
 /**
  *
@@ -8,24 +10,20 @@ package practica4;
  */
 public class ProtocolSend extends ProtocolBase {
 
-  protected ArrayList<TSocketSend> sockets;
+    protected ArrayList<TSocketSend> sockets;
 
-  public ProtocolSend(Channel ch) {
-    super(ch);
-    sockets = new ArrayList<TSocketSend>();
-  }
-
-  public TSocketSend openForOutput(int localPort, int remotePort) {
-    lk.lock();
-    try {
-
-      //...
-	  
-      //treu aquesta sentencia en completar el codi:
-      return null;
-	  
-    } finally {
-      lk.unlock();
+    public ProtocolSend(Channel ch) {
+        super(ch);
+        sockets = new ArrayList<TSocketSend>();
     }
-  }
+
+    public TSocketSend openForOutput(int localPort, int remotePort) {
+        lk.lock();
+        try {
+            //...
+            return new TSocketSend(this, localPort, remotePort);
+        } finally {
+            lk.unlock();
+        }
+    }
 }

@@ -4,7 +4,7 @@ import ast.logging.LogFactory;
 import ast.logging.Log;
 
 
-public class Sender implements Runnable {
+public class Sender implements Runnable { 
     public static Log log = LogFactory.getLog(Sender.class);
 
     protected TSocketSend output;

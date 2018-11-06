@@ -1,6 +1,10 @@
 package practica4;
 // declareu imports
-...
+
+import ast.protocols.tcp.TCPSegment;
+import java.util.ArrayList;
+import practica1.Channel;
+
 
 /**
  *
@@ -21,30 +25,39 @@ public class ProtocolRecv extends ProtocolBase {
   public TSocketRecv openForInput(int localPort, int remotePort) {
     lk.lock();
     try {
-	
-      //...
-	  
-      //treu aquesta sentencia en completar el codi:
-      return null;
-	  
+      //... 
+      return new TSocketRecv(this, localPort, remotePort); 
     } finally {
       lk.unlock();
     }
   }
 
   protected void ipInput(TCPSegment segment) {
-  
     //...
+      lk.lock();
+      try{
+          TSocketRecv tsr = this.getMatchingTSocket(segment.getSourcePort(), segment.getDestinationPort());
+          tsr.processReceivedSegment(segment);
+      }catch(Exception ex){
+          
+      }finally{
+          lk.unlock();
+      }
 	
   }
 
   protected TSocketRecv getMatchingTSocket(int localPort, int remotePort) {
     lk.lock();
     try {
-	
-      //...
-	  
-      return null;
+        //...
+        boolean noMatch = true;
+        int i = 0;
+        TSocketRecv tsr = new TSocketRecv(this, localPort, remotePort);
+        while(noMatch){
+            noMatch = !(sockets.get(i) == tsr);
+            i++;
+        }
+        return sockets.get(i-1);
     } finally {
       lk.unlock();
     }

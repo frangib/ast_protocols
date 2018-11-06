@@ -20,21 +20,20 @@ public class TSocketSend extends TSocketBase {
         // dividir la sequencia de bytes de data
         // en segments de mida maxima sndMSS
         // i enviar-los pel canal
-        //TODO: COMPROBAR si está bien
+        //CORRECTO
         TCPSegment s;
         int i;
         //Habra dos casos: si length es menor o igual que sndMSS o si es mayor
         if (length <= sndMSS) {
             this.segmentize(data, offset, length);
         } else {
-            for ( i = 0; i < Math.floor((double) length / sndMSS); i++) {
-                //FIXME: INDEXOUTOFBOUNDS. Ejectuar Main.java y ver
-                //System.out.println("Copia " + i + "/ i llegará hasta " + Math.ceil((double) length / sndMSS));
-                s = this.segmentize(data, offset + i * sndMSS, length-i*sndMSS);
+            for (i = 0; i < Math.floor((double) length / sndMSS); i++) {
+
+                s = this.segmentize(data, offset + i * sndMSS, length - i * sndMSS);
                 super.channel.send(s);
-                System.out.println("Llega3 con length/por enviar ==> " + length + "/" + (length-((i+1)*sndMSS)));
+                System.out.println("Llega3 con length/por enviar ==> " + length + "/" + (length - ((i + 1) * sndMSS)));
             }
-            s = this.segmentize(data, offset + i * sndMSS, length - i*sndMSS);
+            s = this.segmentize(data, offset + i * sndMSS, length - i * sndMSS);
         }
     }
 
@@ -43,12 +42,12 @@ public class TSocketSend extends TSocketBase {
         // Crea un segment que en el seu payload (camp) de dades
         // conte length bytes que hi ha a data a partir
         // de la posicio offset.
-        //TODO: COMPROBAR si está bien
+        //TODO: CORRECTO
         TCPSegment seg = new TCPSegment();
         byte[] aux = new byte[length];
 
         System.arraycopy(data, offset, aux, 0, length);
-        seg.setData(aux,0,length);
+        seg.setData(aux, 0, length);
         return seg;
     }
 

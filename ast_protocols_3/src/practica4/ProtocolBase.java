@@ -1,12 +1,12 @@
 
 package practica4;
 // declareu Channel import
-...
 import ast.logging.Log;
 import ast.logging.LogFactory;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import practica1.Channel;
 
 /**
  *
