@@ -9,8 +9,9 @@ public class TSocketSend extends TSocketBase {
 
     public TSocketSend(Channel ch) {
         super(ch);
-        sndMSS = 10;/*IP maximum message size - TCP header size TODO: Provar 
-                    primer amb un valor petit*/
+        sndMSS = 10;/*IP maximum message size - TCP header size TODO: Probar 
+         primer amb un valor petit*/
+
     }
 
     public void sendData(byte[] data, int offset, int length) {
@@ -26,7 +27,9 @@ public class TSocketSend extends TSocketBase {
         if (length <= sndMSS) {
             this.segmentize(data, offset, length);
         } else {
-            for (int i = 0; i < Math.ceil((double) length / sndMSS); i++) {  
+            for (int i = 0; i < Math.ceil((double) length / sndMSS); i++) {
+                //FIXME: INDEXOUTOFBOUNDS. Ejectuar Main.java y ver
+                //System.out.println("Copia " + i + "/ i llegará hasta " + Math.ceil((double) length / sndMSS));
                 s = this.segmentize(data, offset + i * length, length);
                 super.channel.send(s);
             }
@@ -39,8 +42,8 @@ public class TSocketSend extends TSocketBase {
         // conte length bytes que hi ha a data a partir
         // de la posicio offset.
         //TODO: COMPROBAR si está bien
-        TCPSegment seg = null;
-        byte[] aux = null;
+        TCPSegment seg = new TCPSegment();
+        byte[] aux = new byte[length];
 
         System.arraycopy(data, offset, aux, 0, length);
         seg.setData(aux);
@@ -51,13 +54,3 @@ public class TSocketSend extends TSocketBase {
         channel.send(segment);
     }
 }
-
-/*
- FIXME: A ver, puede ser que segmentize tenga que devolver más de un segmento.
- No puedo hacer más de un return y sólo puedo devolver un TCPSegmente. Si por
- ejemplt sndMSS = 100 y data tiene 100 bytes, eso resulta en 10 TCPSegments
- de 10 bytes. Sin embargo, segmentize sólo puede devolver 1 TCPSegment. 
- RESPUESTA: EN SENDDATA PONES LA LLAMADA A SEGMENTIZE DENTRO DE UN BUCLE. ¿Vale
- pero que pasa con las posiciones y los offsets?
- TODO: Test con las clases de la practica 2. ¿Cómo?
- */

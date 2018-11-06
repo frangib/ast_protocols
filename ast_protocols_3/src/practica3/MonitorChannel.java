@@ -33,12 +33,14 @@ public class MonitorChannel implements Channel {
         this();
         this.lossRatio = lossRatio;
     }
+
     //Este constructor me lo he inventado yo (me lo ha dicho el profesor).
-    //
+
     public MonitorChannel(int N, double lossRatio) {
         //. . .
         this();//Ejecuta el constructor sin parámetros.
         this.lossRatio = lossRatio;
+        this.cua = new CircularQueue<>(N);
     }
 
     public void send(TCPSegment seg) {
@@ -53,21 +55,26 @@ public class MonitorChannel implements Channel {
                 }
             }
         } finally {
-            s = seg;
-            cua.put(s);
-            c.signalAll();
+            //Canal amb pèrdues. TODO: Check si esta bien
+            if (Math.random() > lossRatio) {
+                s = seg;
+                cua.put(s);
+                c.signalAll();
+            }else{
+                c.signalAll();
+            }
         }
     }
 
     public TCPSegment receive() {
         //. . .
         lk.lock();
-        while(cua.empty()){
+        while (cua.empty()) {
             try {
                 c.await();
             } catch (InterruptedException ex) {
                 Logger.getLogger(MonitorChannel.class.getName()).log(Level.SEVERE, null, ex);
-            }finally{
+            } finally {
                 s = cua.get();
                 c.signalAll();
             }

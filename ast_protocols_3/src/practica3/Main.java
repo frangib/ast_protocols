@@ -16,7 +16,6 @@ public class Main {
 
 class Sender implements Runnable {
     public static Log log = LogFactory.getLog(Sender.class);
-
     protected TSocketSend output;
     protected int sendNum, sendSize, sendInterval;
 
@@ -42,6 +41,10 @@ class Sender implements Runnable {
                 for (int j = 0; j < sendSize; j++) {
                     buf[j] = n;
                     n = (byte) (n + 1);
+                    //TODO: Preguntar por que en este metodo que nos dan ellos
+                    //lo único que hacen es meter un vector de bytes que va de 
+                    // 0 a sendSize-1 en un TCPSegment. No están metiendo ningún
+                    //tipo de información. Solo numeros del 0 al sendSize-1.
                 }
                 output.sendData(buf, 0, buf.length);
             }

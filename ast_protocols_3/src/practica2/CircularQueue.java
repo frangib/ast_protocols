@@ -80,7 +80,7 @@ public class CircularQueue<E> implements Queue<E> {
     }
 
     @Override
-    public E peekLast() {//FIXME: VEURE REARQ
+    public E peekLast() {
         //throw new UnsupportedOperationException("A completar.");
         E toPeek = null;
         if (!this.empty()) {
