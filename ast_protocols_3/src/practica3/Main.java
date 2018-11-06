@@ -47,6 +47,7 @@ class Sender implements Runnable {
                     //tipo de información. Solo numeros del 0 al sendSize-1.
                 }
                 output.sendData(buf, 0, buf.length);
+                System.out.println("i < sendNum ==> " + i + "<" + sendNum);
             }
             log.info("Sender: transmission finished");
         } catch (Exception e) {

@@ -22,17 +22,19 @@ public class TSocketSend extends TSocketBase {
         // i enviar-los pel canal
         //TODO: COMPROBAR si está bien
         TCPSegment s;
-
+        int i;
         //Habra dos casos: si length es menor o igual que sndMSS o si es mayor
         if (length <= sndMSS) {
             this.segmentize(data, offset, length);
         } else {
-            for (int i = 0; i < Math.ceil((double) length / sndMSS); i++) {
+            for ( i = 0; i < Math.floor((double) length / sndMSS); i++) {
                 //FIXME: INDEXOUTOFBOUNDS. Ejectuar Main.java y ver
                 //System.out.println("Copia " + i + "/ i llegará hasta " + Math.ceil((double) length / sndMSS));
-                s = this.segmentize(data, offset + i * length, length);
+                s = this.segmentize(data, offset + i * sndMSS, length-i*sndMSS);
                 super.channel.send(s);
+                System.out.println("Llega3 con length/por enviar ==> " + length + "/" + (length-((i+1)*sndMSS)));
             }
+            s = this.segmentize(data, offset + i * sndMSS, length - i*sndMSS);
         }
     }
 
@@ -46,7 +48,7 @@ public class TSocketSend extends TSocketBase {
         byte[] aux = new byte[length];
 
         System.arraycopy(data, offset, aux, 0, length);
-        seg.setData(aux);
+        seg.setData(aux,0,length);
         return seg;
     }
 

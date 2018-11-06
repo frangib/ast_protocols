@@ -1,14 +1,25 @@
 package AeroportOrdenat;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class ElPrat {
 
     private final int N;
     private String ordreArr = "";
     private String ordreEnl = "";
     //...
+    private boolean busyAirspace;
+    private ReentrantLock lk;
+    private Condition[] pistes;
 
     public ElPrat(int N) {
         this.N = N;
+        busyAirspace = false;
+        lk = new ReentrantLock();
+        for (int i = 0; i < N; i++) {
+            pistes[i] = lk.newCondition();
+        }
     }
 
     public void permisEnlairar(int numPista) {
@@ -16,12 +27,34 @@ public class ElPrat {
         ordreArr = ordreArr + numPista;
         //...
         ordreEnl = ordreEnl + numPista;
+        lk.lock();
+        try {
+            while (busyAirspace) {
+                for (int i = 0; i < N; i++) {
+                    pistes[i].await();
+                }
+            }
+            busyAirspace = true;
+        } catch (Exception ex) {
+
+        } finally {
+            lk.unlock();
+        }
     }
 
     public void fiEnlairar(int numPista) {
         //...
         ordreEnl = ordreEnl + "*";
         //...
+
+        lk.lock();
+        try {
+
+        } catch (Exception ex) {
+
+        } finally {
+            lk.unlock();
+        }
     }
 
     public void mostrar() {
