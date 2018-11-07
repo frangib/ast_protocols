@@ -26,7 +26,6 @@ public class TSocketRecv extends TSocketBase {
      * Places received data in buf Veure descripciÃ³ detallada en Exercici 3!!
      */
     public int receiveData(byte[] buf, int offset, int length) {
-        //TODO: return, bucle, check
         lk.lock(); 
         try {
             // wait until receive queue is not empty
@@ -38,7 +37,6 @@ public class TSocketRecv extends TSocketBase {
             }
             //TODO:Hay que hacer un bucle para los segmentos que sean (HECHO). De aquí
             while(!rcvQueue.empty()){
-                TCPSegment s;
                 consumed += consumeSegment(buf,offset,length);
             }
             //hasta aqui
