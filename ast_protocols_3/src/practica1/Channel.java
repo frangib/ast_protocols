@@ -9,4 +9,6 @@ public interface Channel {
     public TCPSegment receive();
 
     public int getMSS();
+
+    public int getMMS();
 }

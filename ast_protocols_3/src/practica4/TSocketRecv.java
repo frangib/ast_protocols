@@ -51,8 +51,6 @@ public class TSocketRecv extends TSocketBase {
         }
         return consumed;
 
-        //treu aquesta sentencia en completar el codi:
-        //return -1;
     }
 
     protected int consumeSegment(byte[] buf, int offset, int length) {
@@ -73,8 +71,7 @@ public class TSocketRecv extends TSocketBase {
         }
         //Devuelve cuantos bytes ha consumido, no cuantos lleva consumidos.
         return n;
-        //treu aquesta sentencia en completar el codi:
-        //return -1;
+
     }
 
     /**
@@ -84,14 +81,24 @@ public class TSocketRecv extends TSocketBase {
      */
     protected void processReceivedSegment(TCPSegment rseg) {
         //...
+        /*TODO: COMPORBAR*/
         lk.lock();
-        try{
-            while(rcvQueue.full()){
+        try {
+            while (rcvQueue.full()) {
                 appCV.await();
             }
-        }catch(Exception ex){
-            
-        }finally{
+            /*
+            if the que is full discard the segment. Otherwise, put the segment
+            in the rcvQueue.
+            */
+            if (!rcvQueue.full()) {
+                TCPSegment seg = rseg;
+                rcvQueue.put(seg);
+            }
+
+        } catch (Exception ex) {
+
+        } finally {
             appCV.signalAll();
             lk.unlock();
         }

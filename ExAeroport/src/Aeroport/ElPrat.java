@@ -12,17 +12,17 @@ public class ElPrat {
     //...
     private ReentrantLock lk;
     private Condition grounded;
-    private boolean busyRunway[];
-    private boolean allEmpty;
+    private boolean[] pistaOcupada;
 
     public ElPrat(int N) {
         this.N = N;
         lk = new ReentrantLock();
         grounded = lk.newCondition();
-        for(int i = 0; i < N; i++){
-            busyRunway[i] = false;
-        }  
-        allEmpty = true;
+        pistaOcupada = new boolean[N];
+        for(int i = 0 ; i < N ; i++){
+            pistaOcupada[i] = false;
+        }
+
     }
 
     public void permisEnlairar(int numPista) {
@@ -33,19 +33,11 @@ public class ElPrat {
         lk.lock();
         try {
             ordreArr = ordreArr + numPista;
-            //TODO: no estoy seguro de si esta es la mejor forma de seguir.
-            //Quizá es mejor hacer un array de variables de condición?
-            
-            for(int i = 0; !allEmpty; i++){
-                allEmpty = busyRunway[i];
+            while(pistaOcupada[numPista]){
+                
             }
-            while (allEmpty) {
-                grounded.await();
-            }
-            ordreEnl = ordreEnl + numPista;
-            busyRunway[numPista] = true;
         } catch (Exception ex) {
-            
+
         } finally {
             lk.unlock();
         }
@@ -57,11 +49,10 @@ public class ElPrat {
 //        //...
         lk.lock();
         try {
-            busyRunway[numPista] = false;
+
         } catch (Exception ex) {
+
         } finally {
-            ordreEnl = ordreEnl + "*";
-            grounded.signal();
             lk.unlock();
         }
     }
