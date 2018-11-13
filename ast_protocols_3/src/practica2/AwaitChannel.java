@@ -55,6 +55,11 @@ public class AwaitChannel implements Channel {
     public int getMSS() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public int getMMS() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
 
 //FIXME: PREGUNTAR PROFESOR. No puedo seguir encallado aquí

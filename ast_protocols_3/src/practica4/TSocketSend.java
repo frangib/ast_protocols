@@ -25,8 +25,8 @@ public class TSocketSend extends TSocketBase {
         TCPSegment s;
         int i;
         //Habra dos casos: si length es menor o igual que sndMSS o si es mayor
+        System.out.println("Llega con length/sndMSS ==> " + length + "/" + sndMSS);
         if (length <= sndMSS) {
-            System.out.println("Llega con length/sndMSS ==> " + length + "/" + sndMSS);
             this.segmentize(data, offset, length);
         } else {
             for (i = 0; i < Math.floor((double) length / sndMSS); i++) {

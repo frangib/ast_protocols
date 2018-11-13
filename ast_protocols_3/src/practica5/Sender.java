@@ -1,25 +1,26 @@
 
-package practica4;
+package ast.practica5;
+
 import ast.logging.LogFactory;
 import ast.logging.Log;
 
 
-public class Sender implements Runnable { 
+public class Sender implements Runnable {
     public static Log log = LogFactory.getLog(Sender.class);
 
-    protected TSocketSend output;
+    protected TSocket output;
     protected int sendNum, sendSize, sendInterval;
 
     
-    public Sender(TSocketSend pcb, int sendNum, int sendSize, int sendInterval) {
+    public Sender(TSocket pcb, int sendNum, int sendSize, int sendInterval) {
         this.output = pcb;
         this.sendNum = sendNum;
         this.sendSize = sendSize;
         this.sendInterval = sendInterval;
     }
     
-    public Sender(TSocketSend pcb) {
-        this(pcb, 20, 500, 100);
+    public Sender(TSocket pcb) {
+        this(pcb, 20, 500, 10);
     }
     
     public void run() {
@@ -34,8 +35,6 @@ public class Sender implements Runnable {
                     n = (byte) (n + 1);
                 }
                 output.sendData(buf, 0, buf.length);
-                //TODO: Este print lo pongo yo para CHECK
-                System.out.println("i < sendNum ==> " + i + "<" + sendNum);
             }
             log.info("Sender: transmission finished");
         } catch (Exception e) {

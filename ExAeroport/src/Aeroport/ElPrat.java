@@ -12,16 +12,14 @@ public class ElPrat {
     //...
     private ReentrantLock lk;
     private Condition grounded;
-    private boolean[] pistaOcupada;
+    private boolean busyAirspace;
 
+    //En este no hace falta array de pistas ocupadas.
     public ElPrat(int N) {
         this.N = N;
         lk = new ReentrantLock();
         grounded = lk.newCondition();
-        pistaOcupada = new boolean[N];
-        for(int i = 0 ; i < N ; i++){
-            pistaOcupada[i] = false;
-        }
+        busyAirspace = false;
 
     }
 
@@ -33,9 +31,11 @@ public class ElPrat {
         lk.lock();
         try {
             ordreArr = ordreArr + numPista;
-            while(pistaOcupada[numPista]){
-                
+            while (busyAirspace) {
+                grounded.await();
             }
+            busyAirspace = true;
+            ordreEnl = ordreEnl + numPista;
         } catch (Exception ex) {
 
         } finally {
@@ -49,10 +49,16 @@ public class ElPrat {
 //        //...
         lk.lock();
         try {
-
+            if (busyAirspace) {
+                ordreEnl = ordreEnl;
+            } else {
+                ordreEnl = ordreEnl + "*";
+            }
+            busyAirspace = false;
         } catch (Exception ex) {
 
         } finally {
+            grounded.signal();
             lk.unlock();
         }
     }

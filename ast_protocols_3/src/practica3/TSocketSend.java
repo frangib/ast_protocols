@@ -31,7 +31,7 @@ public class TSocketSend extends TSocketBase {
 
                 s = this.segmentize(data, offset + i * sndMSS, length - i * sndMSS);
                 super.channel.send(s);
-                System.out.println("Llega3 con length/por enviar ==> " + length + "/" + (length - ((i + 1) * sndMSS)));
+                System.out.println("Llega con length/por enviar ==> " + length + "/" + (length - ((i + 1) * sndMSS)));
             }
             s = this.segmentize(data, offset + i * sndMSS, length - i * sndMSS);
         }
