@@ -3,10 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/franSSD/OneDrive/upc/telecos/2b/ast/definitivo/ast_protocols_3/src/practica4/TSocketRecv.java</file>
-            <file>file:/Users/franSSD/OneDrive/upc/telecos/2b/ast/definitivo/ast_protocols_3/src/practica4/TSocketSend.java</file>
-            <file>file:/Users/franSSD/OneDrive/upc/telecos/2b/ast/definitivo/ast_protocols_3/src/practica4/ProtocolSend.java</file>
-            <file>file:/Users/franSSD/OneDrive/upc/telecos/2b/ast/definitivo/ast_protocols_3/src/practica4/ProtocolRecv.java</file>
+            <file>file:/Users/franSSD/OneDrive/upc/telecos/2b/ast/definitivo/ast_protocols_3/src/practica5/Protocol.java</file>
+            <file>file:/Users/franSSD/OneDrive/upc/telecos/2b/ast/definitivo/ast_protocols_3/src/practica5/TSocket.java</file>
         </group>
     </open-files>
 </project-private>

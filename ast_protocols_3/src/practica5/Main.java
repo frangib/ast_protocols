@@ -1,7 +1,10 @@
 
-package ast.practica5;
+package practica5;
 
 // define imports
+
+import practica5.TSocket;
+
 
 public class Main {
 

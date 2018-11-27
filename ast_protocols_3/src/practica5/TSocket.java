@@ -1,18 +1,22 @@
-
-package ast.practica5;
+package practica5;
 
 import ast.logging.Log;
+import ast.practica5.Protocol;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ast.protocols.tcp.TCPSegment;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import practica1.CircularQueue;
 
 /**
  * @author AST's professors
  */
 public class TSocket {
+
     public static Log log = Protocol.log;
     protected static final int RCV_QUEUE_SIZE = 3;
 
@@ -22,7 +26,7 @@ public class TSocket {
 
     protected int localPort;
     protected int remotePort;
-    
+
     // Sender variables:
     protected int sndMSS;       // Send maximum segment size
     protected boolean segmentAcknowledged; // segment not yet acknowledged ?
@@ -34,7 +38,6 @@ public class TSocket {
 
     //Other atributes (sender or receiver)
     //...
-    
     /**
      * Create an endpoint bound to the given TCP ports.
      */
@@ -55,32 +58,59 @@ public class TSocket {
         //...
     }
 
-
     // -------------  SENDER PART  ---------------
     public void sendData(byte[] data, int offset, int length) {
         lk.lock();
         try {
             log.debug("%s->sendData(length=%d)", this, length);
             // A completar per l'estudiant:
-            ...
+            while (segmentAcknowledged == false) {
+                try {
+                    appCV.await();
+                } catch (InterruptedException ex) {
+                }
+            }
+            //El resto del método es el mismo que en la P4
+            TCPSegment s;
+            int i;
+            //Habra dos casos: si length es menor o igual que sndMSS o si es mayor
+            System.out.println("Llega con length/sndMSS ==> "+ length + "/" + sndMSS);
+            if (length <= sndMSS) {
+                this.segmentize(data, offset, length);
+            } else {
+                for (i = 0; i < Math.floor((double) length / sndMSS); i++) {
+                    //TODO: CHECK length - i*sndMSS. No me cuadra
+                    s = this.segmentize(data, offset + i * sndMSS, length - i* sndMSS);
+                    //TODO: Este print lo pongo yo para comprobar.
+                    System.out.println("Llega3 con length/por enviar ==> " + length + "/" + (length - ((i + 1) * sndMSS)));
+                }
+                s = this.segmentize(data, offset + i * sndMSS, length - i * sndMSS);
+            }
             // for each segment to send
-                // wait until the sender is not expecting an acknowledgement
-                // create a data segment and send it
+            // wait until the sender is not expecting an acknowledgement
+            // create a data segment and send it
         } finally {
+            appCV.signalAll();//Esta linea no está en la P4.
             lk.unlock();
         }
     }
 
     protected TCPSegment segmentize(byte[] data, int offset, int length) {
         // A completar per l'estudiant (veieu practica 4):
-        ...
+        //El método es el mismo que en la P4
+        TCPSegment seg = new TCPSegment();
+        //...
+        byte[] aux = new byte[length];
+
+        System.arraycopy(data, offset, aux, 0, length);
+        seg.setData(aux, 0, length);
+        return seg;
     }
 
     protected void sendSegment(TCPSegment segment) {
         log.debug("%s->sendSegment(%s)", this, segment);
         proto.net.send(segment);
     }
-
 
     // -------------  RECEIVER PART  ---------------
     /**
@@ -89,12 +119,32 @@ public class TSocket {
     public int receiveData(byte[] buf, int offset, int maxlen) {
         lk.lock();
         try {
+            byte[] aux = null;
+            int consumed = 0;
             log.debug("%s->receiveData(maxlen=%d)", this, maxlen);
             // A completar per l'estudiant:
-            ...
+            while(rcvQueue.empty()){
+                try {
+                    appCV.await();
+                } catch (InterruptedException ex) {
+                }
+            } 
+            
+            while (rcvQueue.empty()) {
+                try {
+                    appCV.await();
+                } catch (InterruptedException ex) {
+                }
+            }
+
+            while (!rcvQueue.empty()) {
+                consumed += consumeSegment(buf, offset, length);
+            }
             // wait until there is a received segment
             // get data from the received segment
+            return consumed;
         } finally {
+            appCV.signalAll();
             lk.unlock();
         }
     }
@@ -119,14 +169,16 @@ public class TSocket {
     }
 
     protected void sendAck() {
-               // A completar per l'estudiant:
-                ...
+        // A completar per l'estudiant:
+        TCPSegment ack = new TCPSegment();
+        ack.setAck(true);
+        proto.net.send(ack);
     }
-
 
     // -------------  SEGMENT ARRIVAL  -------------
     /**
      * Segment arrival.
+     *
      * @param rseg segment of received packet
      */
     protected void processReceivedSegment(TCPSegment rseg) {
@@ -135,24 +187,32 @@ public class TSocket {
             // Check ACK
             if (rseg.isAck()) {
                 // A completar per l'estudiant:
-                ...
+                segmentAcknowledged = true;
                 logDebugState();
             } else if (rseg.getDataLength() > 0) {
                 // Process segment data
                 if (rcvQueue.full()) {
                     log.warn("%s->processReceivedSegment: no free space: %d lost bytes",
-                                this, rseg.getDataLength());
+                            this, rseg.getDataLength());
                     return;
                 }
                 // A completar per l'estudiant:
-                ...
+                while(rcvQueue.empty()){
+                    try {
+                        appCV.await();
+                    } catch (InterruptedException ex) {
+                    }
+                }
+                while(!rcvQueue.empty()){
+                    rcvQueue.put(rseg);
+                }
                 logDebugState();
             }
         } finally {
+            appCV.signalAll();
             lk.unlock();
         }
     }
-
 
     // -------------  LOG SUPPORT  ---------------
     protected void logDebugState() {
@@ -166,7 +226,7 @@ public class TSocket {
         StringBuilder buf = new StringBuilder();
         buf.append(proto.net.getAddr()).append("/{local=").append(localPort);
         buf.append(",remote=").append(remotePort).append("}");
-        return buf.toString(); 
+        return buf.toString();
     }
 
     public String stateToString() {

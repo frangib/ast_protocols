@@ -1,12 +1,14 @@
 
-package ast.practica5;
+package practica5;
 
 // define imports
 
+import practica5.TSocket;
 import ast.protocols.tcp.TCPSegment;
 
 import ast.logging.Log;
 import ast.logging.LogFactory;
+import ast.util.FDuplexChannel;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -41,8 +43,8 @@ public class Protocol {
         */
         lk.lock();
         try {
-            // A completar per l'estudiant (veieu practica 4):
-            return new TSocket(this,localPort, remotePort);
+            return new TSocket(this, localPort, remotePort);
+            
         } finally {
             lk.unlock();
         }
@@ -67,6 +69,8 @@ public class Protocol {
             // A completar per l'estudiant (veieu practica 4):
             int i = 0;
             boolean noMatch = true;
+            //FIXME : ¿Por qué se queja de la linea inferior? Pasa lo mismo
+            //más arriba.
             TSocket t = new TSocket(this,localPort, remotePort);
             while(noMatch){
                 noMatch = !(sockets.get(i) == t);

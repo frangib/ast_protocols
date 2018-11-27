@@ -1,6 +1,7 @@
 
-package ast.practica5;
+package practica5;
 
+import practica5.TSocket;
 import ast.logging.LogFactory;
 import ast.logging.Log;
 
