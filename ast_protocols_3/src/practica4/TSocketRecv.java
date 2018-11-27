@@ -13,6 +13,8 @@ public class TSocketRecv extends TSocketBase {
 
     protected CircularQueue<TCPSegment> rcvQueue;
     protected int rcvSegUnc;
+    //...
+    protected int rcvSegConsumedBytes;
 
     /**
      * Create an endpoint bound to the local IP address and the given TCP port.
@@ -24,6 +26,7 @@ public class TSocketRecv extends TSocketBase {
         super(p, localPort, remotePort);
         rcvQueue = new CircularQueue<TCPSegment>(20);
         rcvSegUnc = 0;
+        rcvSegConsumedBytes = 0;
     }
 
     /**
@@ -58,12 +61,21 @@ public class TSocketRecv extends TSocketBase {
         //TODO: ¿Por qué este métdo no es concurrente (lk.lock() etc)?
         //TODO: Ver si está bien. Comparar con el que nos dan en la P3
         TCPSegment seg = rcvQueue.peekFirst();
-        int rcvSegConsumedBytes = rcvSegUnc;
+        /*
+        La linea inferior la dan ellos pero no sirve de nada. rcvSegUnc siempre
+        vale 0. No se actualiza en ningun sitio. Entonces cada vez que se entra
+        a consumeSegment, rcvSegConsumedBytes = 0 que se carga por completo
+        la utilidad del if (rcvSegConsumedBytes == n){...}.
+        He comentado la linea inferior y he creado rcvSegConsumedBytes como
+        atributo de la clase. El código funciona.
+        */
+        //int rcvSegConsumedBytes = rcvSegUnc;
         int n = seg.getDataLength() - rcvSegConsumedBytes;
         if (n > length) {
             n = length;
         }
-        System.arraycopy(seg.getData(), seg.getDataOffset() + rcvSegConsumedBytes, buf, offset, n);
+        System.arraycopy(seg.getData(), seg.getDataOffset() + 
+                rcvSegConsumedBytes, buf, offset, n);
         rcvSegConsumedBytes += n;
         if (rcvSegConsumedBytes == n) {
             rcvQueue.get();

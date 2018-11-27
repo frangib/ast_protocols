@@ -1,5 +1,8 @@
 package AeroportOrdenat;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Test extends Thread {
 
     private final ElPrat cd;
@@ -18,7 +21,11 @@ public class Test extends Thread {
         } catch (InterruptedException ex) {
 
         }
-        cd.permisEnlairar(id % N);
+        try {
+            cd.permisEnlairar(id % N);
+        } catch (Exception ex) {
+            Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             sleep((int) (Math.random() * 20));
         } catch (InterruptedException ex) {

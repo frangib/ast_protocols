@@ -21,7 +21,8 @@ public class ProtocolRecv extends ProtocolBase {
         task.start();
     }
 
-    public TSocketRecv openForInput(int localPort, int remotePort) {
+    public TSocketRecv openForInput(int localPort, int remotePort) { 
+        //prepara un nou TSocketRecv per una nova connexió.
         lk.lock();
         try {
             //... 
@@ -32,6 +33,7 @@ public class ProtocolRecv extends ProtocolBase {
     }
 
     protected void ipInput(TCPSegment segment) {
+        //fa que el TSocketRcv adequat processi el segment rebut.
         //...
         lk.lock();
         try {
@@ -46,6 +48,7 @@ public class ProtocolRecv extends ProtocolBase {
     }
 
     protected TSocketRecv getMatchingTSocket(int localPort, int remotePort) {
+        //busca el TSocketRcv a qui va dirigit un determinat segment.
         lk.lock();
         try {
             //...

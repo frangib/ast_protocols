@@ -34,10 +34,15 @@ public class Protocol {
     }
 
     public TSocket openWith(int localPort, int remotePort) {
+        /*
+        s’havia anomenat diferent en cadascuna de les classes corresponents a la
+        part emissora i part receptora: openForOutput en ProtocolSend i 
+        openForInput en ProtocolRecv.
+        */
         lk.lock();
         try {
             // A completar per l'estudiant (veieu practica 4):
-            ...
+            return new TSocket(this,localPort, remotePort);
         } finally {
             lk.unlock();
         }
@@ -45,14 +50,29 @@ public class Protocol {
 
     protected void ipInput(TCPSegment segment) {
         // A completar per l'estudiant (veieu practica 4):
-        ...
+        lk.lock();
+        try {
+            TSocket ts = this.getMatchingTSocket(segment.getSourcePort(), segment.getDestinationPort());
+            ts.processReceivedSegment(segment);
+        } catch (Exception ex) {
+
+        } finally {
+            lk.unlock();
+        }
     }
 
     protected TSocket getMatchingTSocket(int localPort, int remotePort) {
         lk.lock();
         try {
             // A completar per l'estudiant (veieu practica 4):
-            ...
+            int i = 0;
+            boolean noMatch = true;
+            TSocket t = new TSocket(this,localPort, remotePort);
+            while(noMatch){
+                noMatch = !(sockets.get(i) == t);
+                i++;
+            }
+            return sockets.get(i-1);
         } finally {
             lk.unlock();
         }
