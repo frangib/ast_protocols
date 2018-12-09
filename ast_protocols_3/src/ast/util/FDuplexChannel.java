@@ -45,7 +45,7 @@ public class FDuplexChannel {
     public Peer getRight() {
         return right;
     }
-
+    //FIXME : Si arreglo en Channel se estropea el Peer
     public class Peer implements Channel {
 
         protected int addr;

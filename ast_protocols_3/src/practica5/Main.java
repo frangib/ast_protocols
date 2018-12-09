@@ -3,6 +3,7 @@ package practica5;
 
 // define imports
 
+import ast.util.FDuplexChannel;
 import practica5.TSocket;
 
 

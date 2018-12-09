@@ -1,7 +1,7 @@
 package practica5;
 
 import ast.logging.Log;
-import ast.practica5.Protocol;
+import practica5.Protocol;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -38,6 +38,8 @@ public class TSocket {
 
     //Other atributes (sender or receiver)
     //...
+    protected String sndIsUna;
+    TCPSegment rcvSegment;
     /**
      * Create an endpoint bound to the given TCP ports.
      */
@@ -56,6 +58,8 @@ public class TSocket {
         rcvWindow = RCV_QUEUE_SIZE;
         //Other necessary initializations
         //...
+        sndIsUna = "";
+        rcvSegment = new TCPSegment();
     }
 
     // -------------  SENDER PART  ---------------
@@ -64,7 +68,14 @@ public class TSocket {
         try {
             log.debug("%s->sendData(length=%d)", this, length);
             // A completar per l'estudiant:
-            while (segmentAcknowledged == false) {
+            /*
+            El m`etode sendData, que ´es el que envia els segments (tal com
+            es feia a la pr`actica 4), haur`a d’esperar a 
+            segmentAcknowledged == true abans d’enviar el seg¨uent segment de
+            dades. Observeu que, complement`ariament, no es podr`a enviar un 
+            nou segment de dades si no hi ha espai lliure a la cua del receptor.
+             */
+            while (segmentAcknowledged == false || rcvQueue.full()) {
                 try {
                     appCV.await();
                 } catch (InterruptedException ex) {
@@ -74,13 +85,13 @@ public class TSocket {
             TCPSegment s;
             int i;
             //Habra dos casos: si length es menor o igual que sndMSS o si es mayor
-            System.out.println("Llega con length/sndMSS ==> "+ length + "/" + sndMSS);
+            System.out.println("Llega con length/sndMSS ==> " + length + "/" + sndMSS);
             if (length <= sndMSS) {
                 this.segmentize(data, offset, length);
             } else {
                 for (i = 0; i < Math.floor((double) length / sndMSS); i++) {
                     //TODO: CHECK length - i*sndMSS. No me cuadra
-                    s = this.segmentize(data, offset + i * sndMSS, length - i* sndMSS);
+                    s = this.segmentize(data, offset + i * sndMSS, length - i * sndMSS);
                     //TODO: Este print lo pongo yo para comprobar.
                     System.out.println("Llega3 con length/por enviar ==> " + length + "/" + (length - ((i + 1) * sndMSS)));
                 }
@@ -123,13 +134,13 @@ public class TSocket {
             int consumed = 0;
             log.debug("%s->receiveData(maxlen=%d)", this, maxlen);
             // A completar per l'estudiant:
-            while(rcvQueue.empty()){
+            while (rcvQueue.empty()) {
                 try {
                     appCV.await();
                 } catch (InterruptedException ex) {
                 }
-            } 
-            
+            }
+
             while (rcvQueue.empty()) {
                 try {
                     appCV.await();
@@ -138,7 +149,7 @@ public class TSocket {
             }
 
             while (!rcvQueue.empty()) {
-                consumed += consumeSegment(buf, offset, length);
+                consumed += consumeSegment(buf, offset, maxlen);
             }
             // wait until there is a received segment
             // get data from the received segment
@@ -197,13 +208,13 @@ public class TSocket {
                     return;
                 }
                 // A completar per l'estudiant:
-                while(rcvQueue.empty()){
+                while (rcvQueue.empty()) {
                     try {
                         appCV.await();
                     } catch (InterruptedException ex) {
                     }
                 }
-                while(!rcvQueue.empty()){
+                while (!rcvQueue.empty()) {
                     rcvQueue.put(rseg);
                 }
                 logDebugState();
