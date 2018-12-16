@@ -45,7 +45,9 @@ public class FDuplexChannel {
     public Peer getRight() {
         return right;
     }
-    //FIXME : Si arreglo en Channel se estropea el Peer
+    /*FIXME : Si arreglo en Channel se estropea el Peer. Una vez arreglado
+    ejecutar Main.java. Si no observeu res de particular disminuiu la mida de la 
+    cua de recepcio i augmenteu el temps entre crides de receiveData al  Receiver.*/
     public class Peer implements Channel {
 
         protected int addr;
